@@ -1,0 +1,28 @@
+
+!
+! Last configuration change at 13:39:41 UTC Sat Sep 15 2018
+!
+hostname R2
+!
+no ip domain lookup
+!
+interface Serial0/0/0
+ bandwidth 128
+ ip address 10.1.1.2 255.255.255.252
+ clock rate 128000
+ no sh
+!
+interface Serial0/0/1
+ bandwidth 128
+ ip address 10.2.2.2 255.255.255.252
+ no sh
+!
+router ospf 1
+ auto-cost reference-bandwidth 1000
+ network 10.1.1.2 0.0.0.0 area 0
+ network 10.2.2.2 0.0.0.0 area 0
+!
+line con 0
+ logging synchronous
+!
+end
