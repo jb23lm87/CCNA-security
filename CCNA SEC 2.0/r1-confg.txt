@@ -32,3 +32,4 @@ router ospf 1
 line con 0
  logging synchronous
 end
+
