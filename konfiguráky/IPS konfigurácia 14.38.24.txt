@@ -1,0 +1,45 @@
+mkdir ipsdir
+skopÌrovaù kæ˙Ë
+ip ips name iosips
+ip ips config location flash:ipsdir
+
+
+
+	ip ips notify sdee
+	ip ips notify log
+	clock set 12:57:00 16 march 2015
+	service timestamps log datetime msec
+	logging 10.0.0.2
+
+ip ips signature-category
+category all
+retired true
+exit
+category ios_ips basic
+retired false
+exit
+exit
+
+
+int fa 0/0
+ip ips iosips in
+
+	sh ip ips signatures count
+
+
+copy tftp://10.0.0.2/IOS-S348-CLI.pkg idconf
+
+	sh ip ips signatures count
+	sh ip ips all
+
+
+modifik·cia signat˙r - 2004 echo request signature
+ip ips signature-definition
+signature 2004 0
+status
+retired false
+enabled true
+engine
+event-action produce-alert
+event-action deny-packet-inline
+event-action reset-tcp-connection

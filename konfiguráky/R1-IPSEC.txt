@@ -1,0 +1,86 @@
+
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+logging message-counter syslog
+logging buffered 10000000
+enable secret 5 $1$PzgQ$hc74egbQmmXMlYHRsGR6a0
+!
+no aaa new-model
+memory-size iomem 5
+!
+dot11 syslog
+ip source-route
+!
+ip cef
+ip dhcp excluded-address 192.168.1.1
+!
+ip dhcp pool fero
+   network 192.168.1.0 255.255.255.0
+   default-router 192.168.1.1 
+!
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username fero privilege 15 secret 5 $1$Nm6p$0kr2sYnEOh3uBFJhtjkcC.
+archive
+ log config
+  hidekeys
+! 
+crypto isakmp policy 10
+ encr aes 256
+ authentication pre-share
+ group 5
+ lifetime 3600
+crypto isakmp key cisco123 address 10.2.2.1
+!
+crypto ipsec security-association lifetime seconds 1800
+!
+crypto ipsec transform-set 50 esp-aes 256 esp-sha-hmac 
+!
+crypto map CMAP 10 ipsec-isakmp 
+ set peer 10.2.2.1
+ set security-association lifetime seconds 900
+ set transform-set 50 
+ set pfs group5
+ match address 101
+!
+interface FastEthernet0/0
+ ip address 10.1.1.1 255.0.0.0
+ duplex auto
+ speed auto
+ crypto map CMAP
+ no sh
+!
+interface FastEthernet0/1
+ ip address 192.168.1.1 255.255.255.0
+ duplex auto
+ speed auto
+ no sh
+!
+ip forward-protocol nd
+ip route 192.168.3.0 255.255.255.0 10.2.2.1
+ip http server
+no ip http secure-server
+!
+access-list 101 permit ip 192.168.1.0 0.0.0.255 192.168.3.0 0.0.0.255
+!
+control-plane
+!
+line con 0
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+scheduler allocate 20000 1000
+end

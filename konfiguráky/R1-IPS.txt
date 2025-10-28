@@ -1,0 +1,98 @@
+
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+logging message-counter syslog
+enable secret 5 $1$dasw$reUK6HhcF6qv2ulm7nI0r/
+!
+no aaa new-model
+memory-size iomem 5
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+ip dhcp excluded-address 192.168.1.1
+!
+ip dhcp pool fero
+   network 192.168.1.0 255.255.255.0
+   default-router 192.168.1.1 
+!
+!
+no ip domain lookup
+ip ips config location flash:ipsdir/ retries 1
+ip ips notify SDEE
+ip ips name iosips
+!
+ip ips signature-category
+  category all
+   retired true
+  category ios_ips basic
+   retired false
+!
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username fero privilege 15 secret 5 $1$CTxU$/wSLL3aJzBN0MiXYeyzg./
+archive
+ log config
+  hidekeys
+! 
+crypto key pubkey-chain rsa
+ named-key realm-cisco.pub signature
+  key-string
+   30820122 300D0609 2A864886 F70D0101 01050003 82010F00 3082010A 02820101 
+   00C19E93 A8AF124A D6CC7A24 5097A975 206BE3A2 06FBA13F 6F12CB5B 4E441F16 
+   17E630D5 C02AC252 912BE27F 37FDD9C8 11FC7AF7 DCDD81D9 43CDABC3 6007D128 
+   B199ABCB D34ED0F9 085FADC1 359C189E F30AF10A C0EFB624 7E0764BF 3E53053E 
+   5B2146A9 D7A5EDE3 0298AF03 DED7A5B8 9479039D 20F30663 9AC64B93 C0112A35 
+   FE3F0C87 89BCB7BB 994AE74C FA9E481D F65875D6 85EAF974 6D9CC8E3 F0B08B85 
+   50437722 FFBE85B9 5E4189FF CC189CB9 69C46F9C A84DFBA5 7A0AF99E AD768C36 
+   006CF498 079F88F8 A3B3FB1F 9FB7B3CB 5539E1D1 9693CCBB 551F78D2 892356AE 
+   2F56D826 8918EF3C 80CA4F4D 87BFCA3B BFF668E9 689782A5 CF31CB6E B4B094D3 
+   F3020301 0001
+  quit
+!
+interface FastEthernet0/1
+ ip address 192.168.1.1 255.255.255.0
+ ip ips iosips in
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+ no sh
+!
+interface Serial0/0/0
+ ip address 10.2.2.2 255.255.255.252
+ ip virtual-reassembly
+ no fair-queue
+ clock rate 125000
+ no sh
+!
+ip forward-protocol nd
+ip route 192.168.1.0 255.255.255.0 10.1.1.1
+ip route 192.168.3.0 255.255.255.0 10.2.2.1
+ip http server
+no ip http secure-server
+!
+logging 192.168.1.2
+!
+control-plane
+!
+line con 0
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+scheduler allocate 20000 1000
+end
